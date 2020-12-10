@@ -1,4 +1,13 @@
 export default {
+  storybook: {
+    stories: [
+      '@/components/**/*.stories.js',
+    ],
+    addons: [
+      '@storybook/addon-controls',
+      '@storybook/addon-docs'
+    ]
+  },
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
     title: 'confing',
