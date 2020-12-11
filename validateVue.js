@@ -1,49 +1,29 @@
 <template>
   <form action="">
-    <input
-      type="text"
-      placeholder="Логин"
+    <Validinput
+      :errorData="VuexForm.login.error"
       v-model="VuexForm.login.value"
       @input="OnSwitch('login')"
+      placeholder="Логин"
     />
-    <div class="block-error_full">
-      <template v-for="data in VuexForm.login.error">
-        <div :key="data.id" v-if="data.active === true">
-          {{ data.text }}
-        </div>
-      </template>
-    </div>
-    <input
-      type="password"
-      placeholder="Пароль"
+    <Validinput
+      :errorData="VuexForm.password.error"
       v-model="VuexForm.password.value"
       @input="OnSwitch('password')"
-    />
-    <div class="block-error_full">
-      <template v-for="data in VuexForm.password.error">
-        <div :key="data.id" v-if="data.active === true">
-          {{ data.text }}
-        </div>
-      </template>
-    </div>
-    <input
-      type="password2"
       placeholder="Пароль"
+    />
+    <Validinput
+      :errorData="VuexForm.password2.error"
       v-model="VuexForm.password2.value"
       @input="OnSwitch('password2')"
+      placeholder="Пароль повторите"
     />
-    <div class="block-error_full">
-      <template v-for="data in VuexForm.password2.error">
-        <div :key="data.id" v-if="data.active === true">
-          {{ data.text }}
-        </div>
-      </template>
-    </div>
     <button @click.prevent="buttonClick()">Отправить</button>
   </form>
 </template>
 
 <script>
+import Validinput from "@/components/Validinput.vue";
 export default {
   methods: {
     buttonClick() {
@@ -53,7 +33,6 @@ export default {
     },
     ServerValid() {
       let a = Math.floor(Math.random() * Math.floor(2));
-      console.log(a);
       if (a === 1) {
         return true;
       } else {
@@ -68,8 +47,17 @@ export default {
           case "undefined":
             this.errorUndefined(keyNameInput);
             break;
+          case "RegExp":
+            this.errorRegExp(keyNameInput);
+            break;
           case "valueTrue":
             this.errorValueTrue(keyNameInput);
+            break;
+          case "minLength":
+            this.errorMinLength(keyNameInput);
+            break;
+          case "maxLength":
+            this.errorMaxLength(keyNameInput);
             break;
           default:
             break;
@@ -121,6 +109,12 @@ export default {
       console.log("checkServer " + checkServer);
       return checkServer;
     },
+
+    errorRegExp(name) {
+      this.VuexForm[name].error.RegExp.active = !this.VuexForm[
+        name
+      ].params.RegExp.test(this.VuexForm[name].value);
+    },
     errorUndefined(name) {
       this.VuexForm[name].error.undefined.active =
         this.VuexForm[name].value === "";
@@ -132,7 +126,23 @@ export default {
         this.VuexForm[this.VuexForm[name].params.valueTrue.value1].value !==
         this.VuexForm[this.VuexForm[name].params.valueTrue.value2].value;
     },
-    errorMinNumber(name) {},
+    errorValueFalse(name) {
+      this.VuexForm[
+        this.VuexForm[name].params.valueFalse.valueSet
+      ].error.valueTrue.active =
+        this.VuexForm[this.VuexForm[name].params.valueFalse.value1].value ===
+        this.VuexForm[this.VuexForm[name].params.valueFalse.value2].value;
+    },
+    errorMinLength(name) {
+      this.VuexForm[name].error.minLength.active =
+        this.VuexForm[name].value.length <=
+        this.VuexForm[name].params.minLength;
+    },
+    errorMaxLength(name) {
+      this.VuexForm[name].error.maxLength.active =
+        this.VuexForm[name].value.length >=
+        this.VuexForm[name].params.maxLength;
+    },
   },
 
   data() {
@@ -141,15 +151,32 @@ export default {
         login: {
           value: "",
           error: {
+            RegExp: {
+              text: "Логин должен состоять из англиских символов и цифр",
+              active: false,
+            },
             undefined: { text: "Введите логин", active: false },
+            minLength: {
+              text: "Логин должен содержать больше 6 символов",
+              active: false,
+            },
+            maxLength: {
+              text: "Логин должен содержать менее 20 символов",
+              active: false,
+            },
             loginServer: {
               text: "Логин или пароль указаны не верно",
               active: false,
               type: "server",
             },
           },
-          regulations: ["undefined"],
+          regulations: ["undefined", "minLength", "maxLength", "RegExp"],
           regulationsServer: { loginServer: this.ServerValid },
+          params: {
+            minLength: 6,
+            maxLength: 20,
+            RegExp: /^[A-Za-z0-9]+$/,
+          },
         },
         password: {
           value: "",
@@ -190,9 +217,40 @@ export default {
       },
     };
   },
+  components: {
+    Validinput,
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 </style>
+
+
+<template>
+  <input :type="typeInput" :placeholder="placeholder" v-bind="$attrs" />
+  <div class="block-error_full">
+    <template v-for="data in errorData">
+      <div :key="data.id" v-if="data.active === true">
+        {{ data.text }}
+      </div>
+    </template>
+  </div>
+</template>
+<script>
+export default {
+  props: {
+    placeholder: {
+      type: String,
+    },
+    typeInput: {
+      type: String,
+      default: "text",
+    },
+    errorData: {
+      type: Object,
+    },
+  },
+};
+</script>
