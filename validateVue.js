@@ -12,8 +12,21 @@
           {{ data.text }}
         </div>
       </template>
-      <button @click.prevent="AllCheck(VuexForm)">Отправить</button>
     </div>
+    <input
+      type="password"
+      placeholder="Пароль"
+      v-model="VuexForm.password.value"
+      @input="errorUndefined('password')"
+    />
+    <div class="block-error_full">
+      <template v-for="data in VuexForm.password.error">
+        <div :key="data.id" v-if="data.active === true">
+          {{ data.text }}
+        </div>
+      </template>
+    </div>
+    <button @click.prevent="AllCheck(VuexForm)">Отправить</button>
   </form>
 </template>
 
@@ -33,6 +46,19 @@ export default {
 
               default:
                 break;
+            }
+          }
+        }
+        if (all[keyNameInput].regulationsServer.length === 0) {
+          let checkS = true;
+          for (const key in all[keyNameInput].error) {
+            if (all[keyNameInput].error[key].active === true) {
+              checkS = false;
+              break;
+            }
+            if (checkS === true) {
+              console.log("server");
+              // Валидация с сервера
             }
           }
         }
@@ -57,14 +83,16 @@ export default {
             undefined: { text: "Введите логин", active: false, check: false },
           },
           regulations: ["undefined"],
+          regulationsServer: [],
         },
-        // password: {
-        //   value: "",
-        //   error: {
-        //     undefined: { text: "Введите пароль", active: false, check: false },
-        //   },
-        //   regulations: ["undefault"],
-        // },
+        password: {
+          value: "",
+          error: {
+            undefined: { text: "Введите пароль", active: false, check: false },
+          },
+          regulations: ["undefined"],
+          regulationsServer: [],
+        },
       },
     };
   },
