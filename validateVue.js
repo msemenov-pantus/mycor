@@ -1,22 +1,22 @@
 <template>
   <form action="">
     <Validinput
-      :errorData="VuexForm.login.error"
-      v-model="VuexForm.login.value"
       @input="OnSwitch('login')"
+      :VuexForm="VuexForm.login"
+      v-model:validInput="VuexForm.login.value"
       placeholder="Логин"
     />
     <Validinput
-      :errorData="VuexForm.password.error"
-      v-model="VuexForm.password.value"
       @input="OnSwitch('password')"
+      :VuexForm="VuexForm.password"
+      v-model:validInput="VuexForm.password.value"
       placeholder="Пароль"
     />
     <Validinput
-      :errorData="VuexForm.password2.error"
-      v-model="VuexForm.password2.value"
       @input="OnSwitch('password2')"
-      placeholder="Пароль повторите"
+      :VuexForm="VuexForm.password2"
+      v-model:validInput="VuexForm.password2.value"
+      placeholder="Пароль еще раз"
     />
     <button @click.prevent="buttonClick()">Отправить</button>
   </form>
@@ -41,6 +41,7 @@ export default {
     },
 
     OnSwitch(keyNameInput) {
+      console.log(keyNameInput);
       // Проверка всех правил Input client
       for (const keyReg in this.VuexForm[keyNameInput].regulations) {
         switch (this.VuexForm[keyNameInput].regulations[keyReg]) {
@@ -116,6 +117,7 @@ export default {
       ].params.RegExp.test(this.VuexForm[name].value);
     },
     errorUndefined(name) {
+      console.log(this.VuexForm[name].value);
       this.VuexForm[name].error.undefined.active =
         this.VuexForm[name].value === "";
     },
@@ -228,10 +230,23 @@ export default {
 </style>
 
 
+
+
+
+
+
+
+
 <template>
-  <input :type="typeInput" :placeholder="placeholder" v-bind="$attrs" />
+  <input
+    @input="$emit('update:validInput', $event.target.value)"
+    :value="VuexForm.value"
+    :type="typeInput"
+    :placeholder="placeholder"
+    v-bind="$attrs"
+  />
   <div class="block-error_full">
-    <template v-for="data in errorData">
+    <template v-for="data in VuexForm.error">
       <div :key="data.id" v-if="data.active === true">
         {{ data.text }}
       </div>
@@ -240,6 +255,7 @@ export default {
 </template>
 <script>
 export default {
+  emits: ["update:validInput"],
   props: {
     placeholder: {
       type: String,
@@ -248,7 +264,7 @@ export default {
       type: String,
       default: "text",
     },
-    errorData: {
+    VuexForm: {
       type: Object,
     },
   },
