@@ -39,112 +39,6 @@ export default {
         return false;
       }
     },
-
-    OnSwitch(keyNameInput) {
-      console.log(keyNameInput);
-      // Проверка всех правил Input client
-      for (const keyReg in this.VuexForm[keyNameInput].regulations) {
-        switch (this.VuexForm[keyNameInput].regulations[keyReg]) {
-          case "undefined":
-            this.errorUndefined(keyNameInput);
-            break;
-          case "RegExp":
-            this.errorRegExp(keyNameInput);
-            break;
-          case "valueTrue":
-            this.errorValueTrue(keyNameInput);
-            break;
-          case "minLength":
-            this.errorMinLength(keyNameInput);
-            break;
-          case "maxLength":
-            this.errorMaxLength(keyNameInput);
-            break;
-          default:
-            break;
-        }
-      }
-    },
-    AllCheckChient() {
-      let fullValidClient = true;
-      for (const keyNameInput in this.VuexForm) {
-        this.OnSwitch(keyNameInput);
-        for (const key in this.VuexForm[keyNameInput].error) {
-          if (
-            this.VuexForm[keyNameInput].error[key].active === true &&
-            this.VuexForm[keyNameInput].error[key].type !== "server"
-          ) {
-            fullValidClient = false;
-            break;
-          }
-        }
-      }
-      return fullValidClient;
-    },
-    AllCheckServer(checkClient) {
-      let checkServer = true;
-      if (checkClient === true) {
-        for (const keyNameInput in this.VuexForm) {
-          for (const keyNamePag in this.VuexForm[keyNameInput]
-            .regulationsServer) {
-            if (
-              this.VuexForm[keyNameInput].regulationsServer[keyNamePag]() ===
-              true
-            ) {
-              this.VuexForm[keyNameInput].error[keyNamePag].active = true;
-              checkServer = false;
-            } else {
-              this.VuexForm[keyNameInput].error[keyNamePag].active = false;
-            }
-          }
-        }
-        return checkServer;
-      } else {
-        return false;
-      }
-    },
-    AllCheck() {
-      let checkClient = this.AllCheckChient();
-      console.log("checkClient " + checkClient);
-      let checkServer = this.AllCheckServer(checkClient);
-      console.log("checkServer " + checkServer);
-      return checkServer;
-    },
-
-    errorRegExp(name) {
-      this.VuexForm[name].error.RegExp.active = !this.VuexForm[
-        name
-      ].params.RegExp.test(this.VuexForm[name].value);
-    },
-    errorUndefined(name) {
-      console.log(this.VuexForm[name].value);
-      this.VuexForm[name].error.undefined.active =
-        this.VuexForm[name].value === "";
-    },
-    errorValueTrue(name) {
-      this.VuexForm[
-        this.VuexForm[name].params.valueTrue.valueSet
-      ].error.valueTrue.active =
-        this.VuexForm[this.VuexForm[name].params.valueTrue.value1].value !==
-        this.VuexForm[this.VuexForm[name].params.valueTrue.value2].value;
-    },
-    errorValueFalse(name) {
-      this.VuexForm[
-        this.VuexForm[name].params.valueFalse.valueSet
-      ].error.valueTrue.active =
-        this.VuexForm[this.VuexForm[name].params.valueFalse.value1].value ===
-        this.VuexForm[this.VuexForm[name].params.valueFalse.value2].value;
-    },
-    errorMinLength(name) {
-      this.VuexForm[name].error.minLength.active =
-        this.VuexForm[name].value.length <=
-        this.VuexForm[name].params.minLength;
-    },
-    errorMaxLength(name) {
-      this.VuexForm[name].error.maxLength.active =
-        this.VuexForm[name].value.length >=
-        this.VuexForm[name].params.maxLength;
-    },
   },
 
   data() {
@@ -224,16 +118,7 @@ export default {
   },
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-</style>
-
-
-
-
-
-
+ 
 
 
 
